@@ -24,7 +24,9 @@ button{font-size:15px;border:0;border-radius:10px;padding:12px;color:var(--tx);b
 </style></head><body>
 <h1>Polbie Gacha</h1>
 <div class="tabs"><button id="t1" class="on">Roll</button><button id="t2">Collection <span id="cnt"></span></button></div>
-<div class="box"><span id="stat"></span> <button id="load" style="padding:6px 10px;margin-left:6px">Load all Polbies</button></div>
+<div class="box"><span id="stat"></span> <details style="margin-top:8px"><summary>Import all Polbies</summary>
+<p>1. Tap Copy tool, then on polandballgo.com/atlas/characters run it (desktop: paste in console; iPhone: save a bookmark, edit its address to the copied text, open the atlas page, tap the bookmark). It flips through all pages and copies the data.<br>2. Come back, paste below, tap Import.</p>
+<button id="cp">Copy tool</button> <textarea id="imp" placeholder="Paste data here" style="width:100%;height:70px;margin-top:6px"></textarea><button id="go" style="margin-top:6px">Import</button></details></div>
 <div id="v1">
  <div class="box"><span id="ptxt"></span><div class="bar"><i id="pb"></i></div></div>
  <div class="roll"><button id="r1">Roll x1</button><button id="r10">Roll x10</button></div>
@@ -43,49 +45,18 @@ const ld=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null
 const sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
 let ALL=ld("polbies")||seed, S=ld("polbieSave")||{own:{},pity:0,total:0};
 
-// ---- scraping ----
-const PROX=[u=>u,u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),u=>"https://corsproxy.io/?"+encodeURIComponent(u)];
-let pi=0;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function get(url){
- for(let round=0;round<4;round++){
-  for(let i=0;i<PROX.length;i++){const k=(pi+i)%PROX.length;
-   try{const r=await fetch(PROX[k](url));if(r.ok){const t=await r.text();if(t.includes("/atlas/character/")){pi=k;return t}}}catch(e){}
-  }
-  await sleep(1500*(round+1));
- }
- throw new Error("fetch failed");
-}
-function parse(html,slug){
- const d=new DOMParser().parseFromString(html,"text/html"),txt=d.body.innerText||d.body.textContent;
- const nx=[...d.querySelectorAll('a[href*="/atlas/character/"]')].find(a=>a.textContent.includes("\u2192"));
- const name=(d.title||slug).replace(/ - Atlas.*/,"");
- const rar=(txt.match(/Rarity\s*(Common|Uncommon|Rare|Epic|Legendary|Mythic)/)||[])[1]||"Common";
- const img=(d.querySelector('meta[property="og:image"]')||{}).content||"";
- const types=[...new Set([...html.matchAll(/attributes_([a-z_]+)\.webp/g)].map(m=>m[1][0].toUpperCase()+m[1].slice(1)))];
- let forms=[];const a=txt.indexOf("Base Form"),b=txt.indexOf("Splash Art");
- if(a>=0&&b>a)forms=txt.slice(a,b).split("\n").map(s=>s.trim()).filter(Boolean);
- return{p:{id:slug,name,rarity:rar,types,forms,image:img},next:nx?nx.getAttribute("href").split("/").pop():null};
-}
-let P=ld("polbieProg")||{list:[],next:"united_states"};
-if(P.list.length>=60)ALL=P.list;
-if(P.list.length&&P.next)$("load").textContent="Resume ("+P.list.length+")";
-async function scrape(){
- $("load").disabled=true;const seen=new Set(P.list.map(p=>p.id));
- if(!P.next&&P.list.length){P={list:[],next:"united_states"};seen.clear()}
- let slug=P.next;
- while(slug&&!seen.has(slug)){
-  $("stat").textContent=`Scraping ${P.list.length+1}/930…`;
-  try{const{p,next}=parse(await get(BASE+slug),slug);seen.add(slug);P.list.push(p);slug=P.next=next}
-  catch(e){sv("polbieProg",P);$("stat").textContent=`Paused at ${P.list.length} (fetch failed). Press Resume to continue.`;$("load").textContent="Resume ("+P.list.length+")";$("load").disabled=false;if(P.list.length>=60){ALL=P.list;sv("polbies",ALL)}return}
-  if(P.list.length%10===0){sv("polbieProg",P);if(P.list.length>=60){ALL=P.list;sv("polbies",ALL)}}
-  await sleep(150);
- }
- P.next=null;sv("polbieProg",P);
- if(P.list.length>=60){ALL=P.list;sv("polbies",ALL)}
- $("stat").textContent="";$("load").textContent="Reload all";$("load").disabled=false;ui();
-}
-$("load").onclick=scrape;
-
+// ---- import ----
+const TOOL="javascript:(async()=>{const out=new Map(),w=t=>new Promise(r=>setTimeout(r,t));for(let g=0;g<60;g++){const n0=out.size;document.querySelectorAll('a[href*=\"/atlas/character/\"]').forEach(a=>{const s=a.getAttribute('href').split('/').pop();if(!s||out.has(s))return;const im=a.querySelector('img');out.set(s,{id:s,raw:a.innerText.split('\\n').map(x=>x.trim()).filter(Boolean),img:im?im.src:''})});if(g>0&&out.size===n0)break;const nx=[...document.querySelectorAll('button,a')].find(b=>/^\\s*Next/i.test(b.textContent)&&!b.disabled&&b.getAttribute('aria-disabled')!=='true');if(!nx)break;nx.click();await w(800)}const j=JSON.stringify([...out.values()]);try{await navigator.clipboard.writeText(j);alert('Copied '+out.size+' Polbies. Paste them into the app.')}catch(e){prompt('Copy this:',j)}})();";
+const RW=["Common","Uncommon","Rare","Epic","Legendary","Mythic"];
+$("cp").onclick=async()=>{try{await navigator.clipboard.writeText(TOOL);$("cp").textContent="Copied!"}catch(e){$("imp").value=TOOL}};
+$("go").onclick=()=>{
+ try{const arr=JSON.parse($("imp").value.trim());const out=[];
+  for(const o of arr){const L=o.raw||[];const rar=RW.find(r=>L.some(l=>l.trim()===r||l.startsWith(r)))||"Common";
+   const ni=L.findIndex(l=>/^#\d+/.test(l));let name=L.find((l,i)=>!RW.includes(l)&&!/^#\d+/.test(l))||o.id;
+   const types=ni>=0?L.slice(ni+1).filter(l=>l!==name&&!/^#\d+/.test(l)):[];
+   out.push({id:o.id,name,rarity:rar,types,forms:[],image:o.img||`https://assets.polandballgo.com/characters/${encodeURIComponent(name.toLowerCase())}/splashart/${encodeURIComponent(name.toLowerCase())}.webp`})}
+  if(!out.length)throw 0;ALL=out;sv("polbies",ALL);$("stat").textContent="";ui();$("imp").value="";alert("Imported "+out.length+" Polbies")}
+ catch(e){alert("Couldn't read that data. Make sure you pasted the full copied text.")}};
 // ---- gacha ----
 function rates(n){let m=.05,l=.85,c=51;
  if(n>=140){const add=Math.min(1,(n-139)/60)*30;m+=add*.06;l+=add*.94;c=Math.max(0,c-add)}
