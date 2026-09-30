@@ -4,27 +4,37 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Polbie Gacha</title>
 <style>
-:root{--bg:#1a1a2e;--card:#26264a;--tx:#f2f2fa;--mut:#9a9ac0}
-html,body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,system-ui,sans-serif}
-body{max-width:520px;margin:0 auto;padding:calc(12px + env(safe-area-inset-top,0px)) 12px calc(12px + env(safe-area-inset-bottom,0px))}
-h1{font-size:20px;margin:6px 0}
-button{font-size:15px;border:0;border-radius:10px;padding:12px;color:var(--tx);background:var(--card)}
-.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1}.tabs .on{background:#5b5bd6}
-.box{background:var(--card);border-radius:12px;padding:10px;font-size:13px;color:var(--mut);margin-bottom:8px}
-.bar{height:8px;background:#0003;border-radius:4px;margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;background:#f5b301}
-.roll{display:flex;gap:8px;margin:12px 0}.roll button{flex:1;padding:16px;background:#f5b301;color:#222;font-weight:700;font-size:17px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.c{border-radius:12px;padding:8px;background:var(--card);border:2px solid var(--b);text-align:center;position:relative}
-.c img{width:100%;height:100px;object-fit:contain}
-.c .r{font-size:10px;font-weight:700;color:var(--b);text-transform:uppercase}
-.c b{display:block;font-size:13px}.c small{display:block;color:var(--mut);font-size:10px}
-.c.new::after{content:"NEW";position:absolute;top:6px;right:6px;background:#e33;font-size:10px;padding:2px 5px;border-radius:6px}
-.c.lock{opacity:.3}
-.exp{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #ffffff22}
-.fitem{width:70px;text-align:center}
-.fitem img{width:100%;height:60px;object-fit:contain;border-radius:8px;background:#0002}
-.fitem small{display:block;font-size:9px;color:var(--mut);margin-top:2px}
-.note{font-size:12px;color:var(--mut);margin-top:12px;line-height:1.4}
+:root{--bg:#14142a;--bg2:#1c1c3a;--card:#23234a;--card2:#2b2b57;--tx:#f4f4fb;--mut:#9a9ac0;--accent:#f5b301}
+*{box-sizing:border-box}
+html,body{margin:0;background:linear-gradient(180deg,var(--bg),var(--bg2) 400px);color:var(--tx);font-family:-apple-system,system-ui,sans-serif;min-height:100%}
+body{max-width:520px;margin:0 auto;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(24px + env(safe-area-inset-bottom,0px))}
+h1{font-size:22px;margin:4px 0 12px;font-weight:800;letter-spacing:.3px;display:flex;align-items:center;gap:8px}
+h1::before{content:"⚽";font-size:20px}
+button{font-size:15px;border:0;border-radius:12px;padding:12px;color:var(--tx);background:var(--card);transition:transform .08s,filter .15s;font-family:inherit}
+button:active{transform:scale(.97)}
+.tabs{display:flex;gap:8px;margin:0 0 10px;background:#0002;padding:4px;border-radius:14px}
+.tabs button{flex:1;background:transparent;font-weight:600;color:var(--mut)}
+.tabs .on{background:var(--card2);color:var(--tx);box-shadow:0 2px 8px #0004}
+.box{background:var(--card);border-radius:14px;padding:12px;font-size:13px;color:var(--mut);margin-bottom:10px;box-shadow:0 2px 10px #0003}
+.bar{height:9px;background:#0004;border-radius:5px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#f5b301,#ff8a00);border-radius:5px;transition:width .3s}
+.roll{display:flex;gap:10px;margin:14px 0}
+.roll button{flex:1;padding:17px;background:linear-gradient(180deg,#ffcb3d,#f5a300);color:#241a00;font-weight:800;font-size:17px;box-shadow:0 4px 14px #f5b30155;letter-spacing:.2px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.c{border-radius:16px;padding:10px;background:linear-gradient(160deg,var(--card2),var(--card));border:1.5px solid color-mix(in srgb,var(--b) 55%,transparent);text-align:center;position:relative;box-shadow:0 3px 12px #0004,inset 0 0 0 1px #ffffff08;transition:transform .12s}
+.c:active{transform:scale(.98)}
+.c img{width:100%;height:100px;object-fit:contain;border-radius:10px;background:radial-gradient(circle,#ffffff12,transparent 70%);padding:4px;cursor:pointer}
+.c .r{font-size:10px;font-weight:800;color:var(--b);text-transform:uppercase;letter-spacing:.6px;text-shadow:0 0 8px color-mix(in srgb,var(--b) 60%,transparent)}
+.c b{display:block;font-size:13px;margin-top:2px;font-weight:700}
+.c small{display:block;color:var(--mut);font-size:10px;margin-top:2px}
+.c.new::after{content:"NEW";position:absolute;top:8px;right:8px;background:linear-gradient(180deg,#ff5a5a,#e33);font-size:9px;font-weight:800;padding:3px 6px;border-radius:8px;box-shadow:0 2px 6px #e3333355;letter-spacing:.4px}
+.c.lock{opacity:.35;filter:grayscale(.4)}
+.exp{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #ffffff1a}
+.fitem{width:72px;text-align:center}
+.fitem img{width:100%;height:60px;object-fit:contain;border-radius:10px;background:#00000030;padding:3px;cursor:pointer}
+.fitem small{display:block;font-size:9px;color:var(--mut);margin-top:3px;line-height:1.2}
+.note{font-size:12px;color:var(--mut);margin-top:14px;line-height:1.5;opacity:.85}
+details summary{cursor:pointer;font-weight:600;color:var(--tx)}
 </style></head><body>
 <h1>Polbie Gacha</h1>
 <div class="tabs"><button id="t1" class="on">Roll</button><button id="t2">Collection <span id="cnt"></span></button></div>
